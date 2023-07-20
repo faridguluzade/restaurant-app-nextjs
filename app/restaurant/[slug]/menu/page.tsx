@@ -23,7 +23,7 @@ const fetchRestaurantMenu = async (slug: string): Promise<IRestaurantMenu> => {
   if (!restaurantMenu) {
     throw new Error();
   }
-
+  // @ts-ignore
   return restaurantMenu.items;
 };
 
@@ -34,7 +34,6 @@ export default async function RestaurantMenuPage({
 }) {
   const restaurantMenu = await fetchRestaurantMenu(params.slug);
 
-  console.log(restaurantMenu);
   return (
     <>
       <Header name={params.slug} />

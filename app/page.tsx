@@ -1,14 +1,19 @@
-import { PrismaClient, PRICE, Location, Cuisinie } from "@prisma/client";
+import {
+  PrismaClient,
+  PRICE,
+  Location,
+  Cuisinie,
+  Review,
+} from "@prisma/client";
+
+import { Inter } from "@next/font/google";
+const inter = Inter({ subsets: ["latin"] });
 
 // components
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import Cards from "./components/Cards";
 import Card from "./components/Card";
-
-import { Inter } from "@next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
 
 const prisma = new PrismaClient();
 
@@ -20,9 +25,10 @@ export interface IRestaurant {
   location: Location;
   price: PRICE;
   slug: string;
+  reviews: Review[];
 }
 
-const fetchRestaurants = async (): Promise<IRestaurant[] | any> => {
+const fetchRestaurants = async (): Promise<IRestaurant[]> => {
   const restaurants = await prisma.restaurants.findMany({
     select: {
       id: true,
@@ -30,8 +36,9 @@ const fetchRestaurants = async (): Promise<IRestaurant[] | any> => {
       main_image: true,
       cuisinie: true,
       location: true,
-      price: true,
       slug: true,
+      price: true,
+      reviews: true,
     },
   });
 
@@ -39,6 +46,7 @@ const fetchRestaurants = async (): Promise<IRestaurant[] | any> => {
     throw new Error();
   }
 
+  // @ts-ignore
   return restaurants;
 };
 

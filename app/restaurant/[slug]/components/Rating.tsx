@@ -1,15 +1,14 @@
 import Stars from "../../../components/Stars";
 
-function Rating() {
+function Rating({ reviews }: any) {
   return (
     <div className="flex items-end">
       <div className="ratings mt-2 flex items-center">
-        <Stars // reviews={reviews}
-        />
-        <p className="text-reg ml-3">4.9</p>
+        <Stars reviews={reviews} />
+        <p className="text-reg ml-3"></p>
       </div>
       <div>
-        <p className="text-reg ml-4">600 Reviews</p>
+        <p className="text-reg ml-4"> {reviews.length} reviews</p>
       </div>
     </div>
   );

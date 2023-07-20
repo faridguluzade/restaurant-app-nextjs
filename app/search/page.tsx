@@ -1,10 +1,22 @@
-import { PrismaClient, PRICE, Location, Cuisinie } from "@prisma/client";
+import {
+  PrismaClient,
+  PRICE,
+  Location,
+  Cuisinie,
+  Review,
+} from "@prisma/client";
 
 import Header from "./components/Header";
 import SearchSidebar from "./components/SearchSidebar";
 import RestaurantCard from "./components/RestaurantCard";
 
 const prisma = new PrismaClient();
+
+export interface ISearchParams {
+  city: string;
+  cuisinie: string;
+  price: string;
+}
 
 export interface IRestaurant {
   id: number;
@@ -15,35 +27,65 @@ export interface IRestaurant {
   cuisinie: Cuisinie;
   location: Location;
   price: PRICE;
-  // reviews: Reviews,
+  reviews: Review[];
 }
 
-const fetchRestaurants = async (city: string): Promise<IRestaurant[]> => {
-  const restaurants = prisma.restaurants.findMany({
-    where: {
-      location: {
-        name: {
-          equals: city.toLocaleLowerCase(),
-        },
+const fetchRestaurants = async (
+  params: ISearchParams
+): Promise<IRestaurant[]> => {
+  console.log("params", params);
+
+  const where: any = {};
+
+  if (params.city) {
+    const city = {
+      name: {
+        equals: params.city?.toLocaleLowerCase(),
       },
-    },
+    };
+    where.location = city;
+  }
+
+  if (params.cuisinie) {
+    const cuisinie = {
+      name: {
+        equals: params.cuisinie?.toLocaleLowerCase(),
+      },
+    };
+    where.cuisinie = cuisinie;
+  }
+
+  if (params.price) {
+    const price = {
+      equals: params.price,
+    };
+    where.price = price;
+  }
+
+  console.log(where);
+
+  const restaurants = await prisma.restaurants.findMany({
+    where,
     select: {
       id: true,
       name: true,
       description: true,
       main_image: true,
       slug: true,
+      price: true,
       cuisinie: true,
       location: true,
-      // reviews: true,
+      reviews: true,
     },
   });
+
+  console.log("restaurants", restaurants);
 
   if (!restaurants) {
     throw new Error();
   }
 
-  return restaurants;
+  return restaurants as IRestaurant[];
 };
 
 const fetchCuisinies = async () => {
@@ -77,9 +119,9 @@ const fetchLocations = async () => {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { city: string };
+  searchParams: ISearchParams;
 }) {
-  const restaurants = await fetchRestaurants(searchParams.city);
+  const restaurants = await fetchRestaurants(searchParams);
   const cuisinies = await fetchCuisinies();
   const locations = await fetchLocations();
 
@@ -87,7 +129,11 @@ export default async function SearchPage({
     <>
       <Header />
       <div className="flex py-4 m-auto w-2/3 justify-between items-start">
-        <SearchSidebar cuisinies={cuisinies} locations={locations} />
+        <SearchSidebar
+          cuisinies={cuisinies}
+          locations={locations}
+          searchParams={searchParams}
+        />
         <div className="w-5/6">
           {restaurants.length > 0 ? (
             <RestaurantCard restaurants={restaurants} />
