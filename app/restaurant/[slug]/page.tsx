@@ -45,7 +45,7 @@ const fetchRestaurantDetails = async (
   });
 
   if (!restaurantDetails) {
-    throw new Error();
+    throw new Error("Something went wrong, Try Again!");
   }
 
   return restaurantDetails;
